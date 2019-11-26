@@ -6,13 +6,17 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from datetime import datetime
 from wp_message import message
 import time
-
+from urllib import request
 
 class WppApi:
-    browser = webdriver.Firefox()
+    firefox_capabilities = DesiredCapabilities.FIREFOX
+    firefox_capabilities['marionette'] = True
+    firefox_capabilities['binary'] = 'driver/geckodriver'
+    browser = webdriver.Firefox(executable_path = 'driver/geckodriver')
     timeout = 10
 
     def __init__(self, wait):
@@ -81,6 +85,16 @@ class WppApi:
         except NoSuchElementException:
             return False
         return True
+    
+    def check_exists_by_tag(self, driver, tag):
+        try:
+            driver.find_element_by_tag_name(tag)
+        except NoSuchElementException:
+            return False
+        return True
+
+    def get_and_save_image(self,src, chat_name):
+        request.urlretrieve(src, "media/images/img.png")
 
     # retorna lista com ultimas menssagens
     def get_messages_chat(self, chat_name, wait):
@@ -91,10 +105,11 @@ class WppApi:
         # print(len(divs))
         for div in divs:
 
-            # if self.check_exists_by_xpath(div, 'img'):
-            #     img = div.find_element_by_xpath('//img')
-            #     src = img.get_attribute('src')
-            #     print(src)
+            if self.check_exists_by_tag(div, 'img'):
+                img = div.find_element_by_tag_name('img')
+                src = img.get_attribute('src')
+                print(src)
+                self.get_and_save_image(src, chat_name)
 
             if self.check_exists_by_class(div, 'copyable-text'):
                 info = div.find_element_by_class_name('copyable-text')
