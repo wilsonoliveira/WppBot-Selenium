@@ -8,7 +8,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from datetime import datetime
-from wp_message import message
+from wpp_message import message
 import time
 from urllib import request
 
@@ -122,3 +122,17 @@ class WppApi:
                 messages.append(msg)
                 # print(msg.text)
         return messages
+
+    def chat_with_unseen_messages(self):
+        WebDriverWait(self.browser, self.timeout).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, '._2zCfw')))
+        time.sleep(5)
+
+        chat_names= []
+        chats = self.browser.find_elements_by_css_selector('.X7YrQ')
+        for chat in chats:
+            if self.check_exists_by_class(chat, 'P6z4j'):
+                neme = chat.find_element_by_css_selector('._3H4MS')
+                unseen = chat.find_element_by_css_selector('.P6z4j')
+                chat_names.append((neme.text, unseen.text))
+        return chat_names
