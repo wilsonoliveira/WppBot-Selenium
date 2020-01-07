@@ -1,8 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
+from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.alert import Alert
@@ -93,8 +95,17 @@ class WppApi:
             return False
         return True
 
-    def get_and_save_image(self,src, chat_name):
-        request.urlretrieve(src, "media/images/img.png")
+    def get_and_save_image(self, src, chat_name):
+        main_window = self.browser.current_window_handle
+        self.browser.execute_script('''window.open("%s", "_blank");'''%(src))
+        self.browser.switch_to_window(self.browser.window_handles[1])
+
+        actionChains = ActionChains(self.browser)
+        element =  self.browser.find_element_by_tag_name('img')
+        actionChains.context_click(element).perform()
+        # self.browser.get(src)
+        print('DONE')
+        # request.urlretrieve(src, "media/images/img.png")
 
     # retorna lista com ultimas menssagens
     def get_messages_chat(self, chat_name, wait):
@@ -106,6 +117,7 @@ class WppApi:
         for div in divs:
 
             if self.check_exists_by_tag(div, 'img'):
+                print('achou img')
                 img = div.find_element_by_tag_name('img')
                 src = img.get_attribute('src')
                 print(src)
