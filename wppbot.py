@@ -102,7 +102,7 @@ class WppApi:
 
         actionChains = ActionChains(self.browser)
         element =  self.browser.find_element_by_tag_name('img')
-        actionChains.context_click(element).perform()
+        actionChains.context_click(element).send_keys(Keys.ARROW_DOWN).send_keys(Keys.ARROW_DOWN).send_keys(Keys.ARROW_DOWN).send_keys(Keys.ARROW_DOWN).send_keys(Keys.ENTER).perform()
         # self.browser.get(src)
         print('DONE')
         # request.urlretrieve(src, "media/images/img.png")
@@ -121,7 +121,7 @@ class WppApi:
                 img = div.find_element_by_tag_name('img')
                 src = img.get_attribute('src')
                 print(src)
-                self.get_and_save_image(src, chat_name)
+                # self.get_and_save_image(src, chat_name)
 
             if self.check_exists_by_class(div, 'copyable-text'):
                 info = div.find_element_by_class_name('copyable-text')
