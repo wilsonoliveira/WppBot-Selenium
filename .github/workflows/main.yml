@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: build-docker
+      run: echo Started
+    - name: Docker Build & Push
+      uses: mr-smithers-excellent/docker-build-push@v2
+      with:
+        # Name of the Docker image
+        image: wppbot
+        # Tag override for Docker image
+        tag: v0.0.1
+        # Target Docker registry
+        registry: docker.pkg.github.com/wilsonoliveira/wppbot-selenium
+        # Location of Dockerfile, if not Dockerfile in root directory
+        username: lucasrferreira
+        # Password for Docker registry
+        password: 128e8d223141f972a54f8772a29f32bf7d6ff086
