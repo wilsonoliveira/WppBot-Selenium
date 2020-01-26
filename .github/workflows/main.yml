@@ -23,4 +23,4 @@ jobs:
         # Location of Dockerfile, if not Dockerfile in root directory
         username: lucasrferreira
         # Password for Docker registry
-        password: 128e8d223141f972a54f8772a29f32bf7d6ff086
+        password: ${{ secrets.docker_token }}
