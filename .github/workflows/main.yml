@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Started
-      run: echo Started
+      run: echo Change
     - name: Docker Build & Push
       uses: mr-smithers-excellent/docker-build-push@v2
       with:
