@@ -19,7 +19,7 @@ jobs:
         # Tag override for Docker image
         tag: v0.0.1
         # Target Docker registry
-        registry: docker.pkg.github.com/wilsonoliveira/wppbot-selenium
+        registry: docker.pkg.github.com/lucasrferreira/wppbot-selenium
         # Location of Dockerfile, if not Dockerfile in root directory
         username: lucasrferreira
         # Password for Docker registry
