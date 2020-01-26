@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: build-docker
+    - name: Started
       run: echo Started
     - name: Docker Build & Push
       uses: mr-smithers-excellent/docker-build-push@v2
