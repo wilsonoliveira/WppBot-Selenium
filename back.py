@@ -1,10 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-
-class Group:
-   def __init__(self, group_name, is_on):
-      self.group_name = group_name
-      self.is_on = is_on
-   
+import service_locator
 
 app = Flask(__name__)
 
@@ -30,11 +25,10 @@ def index():
 
 @app.route('/groups', methods=['GET'])
 def get_groups():
-   g1 = Group("Group1", True);
-   g2 = Group("Group2", False);
-   g3 = Group("Group3", True);
-   g4 = Group("Group4", True);
-   groups = [g1,g2,g3,g4]
+   group_service = service_locator.GroupService()
+   print(group_service)
+   
+   groups = group_service.getAllGroups()
    print(groups)
    return render_template('groups.html', groups = groups)
 

@@ -70,8 +70,8 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
           <button>Add</button>
           <!-- <span onclick="newElement()" class="addBtn">Add</span> -->
           <ul id="myUL">
-            {% for group in groups %}
-            <li>{{group.group_name}}</li>
+            {% for key, value in groups.items() %}
+            <li>{{key}}</li>
             {% endfor %}
           </ul>
         </div>
