@@ -141,10 +141,41 @@ class WppApi:
         time.sleep(5)
 
         chat_names= []
-        chats = self.browser.find_elements_by_css_selector('.X7YrQ')
-        for chat in chats:
-            if self.check_exists_by_class(chat, 'P6z4j'):
-                neme = chat.find_element_by_css_selector('._3H4MS')
-                unseen = chat.find_element_by_css_selector('.P6z4j')
-                chat_names.append((neme.text, unseen.text))
+        div_side = self.browser.find_element_by_id('pane-side')
+        size = self.browser.execute_script('return arguments[0].scrollHeight', div_side)
+        ini = 0
+        while ini + size/10 < size - size/10:
+            chats = self.browser.find_elements_by_css_selector('.X7YrQ')
+            for chat in chats:
+                if self.check_exists_by_class(chat, 'P6z4j'):
+                    neme = chat.find_element_by_css_selector('._3H4MS')
+                    unseen = chat.find_element_by_css_selector('.P6z4j')
+                    chat_tuple = (neme.text, unseen.text)
+                    if chat_tuple not in chat_names:
+                        chat_names.append(chat_tuple)
+            self.browser.execute_script('arguments[0].scrollTop += arguments[0].scrollHeight/10', div_side)
+            ini = self.browser.execute_script('return arguments[0].scrollTop', div_side)
+            time.sleep(1)
         return chat_names
+
+    def get_chat_names(self):
+        WebDriverWait(self.browser, self.timeout).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, '._2zCfw')))
+        time.sleep(5)
+
+        chat_names= []
+        div_side = self.browser.find_element_by_id('pane-side')
+        size = self.browser.execute_script('return arguments[0].scrollHeight', div_side)
+        ini = 0
+        while ini + size/10 < size - size/10:
+            chats = self.browser.find_elements_by_css_selector('.X7YrQ')
+            for chat in chats:
+                neme = chat.find_element_by_css_selector('._3H4MS')
+                chat_name = neme.text
+                if chat_name not in chat_names:
+                    chat_names.append(chat_name)
+            self.browser.execute_script('arguments[0].scrollTop += arguments[0].scrollHeight/10', div_side)
+            ini = self.browser.execute_script('return arguments[0].scrollTop', div_side)
+        self.browser.minimize_window()
+        return chat_names
+            

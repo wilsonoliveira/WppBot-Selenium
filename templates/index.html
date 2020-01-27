@@ -64,13 +64,20 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
       
       <div class="w3-twothird">
         <h5>Feeds</h5>
-        <table class="w3-table w3-striped w3-white">
-          <tr>
-            <td></td>
-            <td>Grupos</td>
-            <td><input type="text" name="tx_grupo"/></td>
-          </tr>          
-        </table>
+        <div id="myDIV" class="header">
+          <h2 style="margin:5px">My To Do List</h2>
+          <input type="text" id="myInput" placeholder="Title...">
+          <button>Add</button>
+          <!-- <span onclick="newElement()" class="addBtn">Add</span> -->
+          <ul id="myUL">
+            <li>Hit the gym</li>
+            <li class="checked">Pay bills</li>
+            <li>Meet George</li>
+            <li>Buy eggs</li>
+            <li>Read a book</li>
+            <li>Organize office</li>
+          </ul>
+        </div>
         <form method="post" id="form">
           <button>Start</button>
         </form>
@@ -83,7 +90,7 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
               url: 'http://127.0.0.1:5000/startbot/',
               data: {'number': number},
               method: 'POST',
-              success: function(data) {
+              success: function(data) {          
                 $('#ps').html(data['message'])
               }
             });

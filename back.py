@@ -26,11 +26,9 @@ def index():
 def startbot():
    from wppbot import WppApi
    wpp = WppApi(60)
-   messages = wpp.get_messages_chat("FIFA", 20)
+   chats = wpp.get_chat_names()
 
-   data = {'message': 'bot started'}
-   return data
-
+   data = {'message': chats}
 
 if __name__ == '__main__':
    app.run(debug=True)
