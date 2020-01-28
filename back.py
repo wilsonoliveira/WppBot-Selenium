@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, send_file, request, jsonify
 import service_locator
 
 app = Flask(__name__)
@@ -45,6 +45,11 @@ def startbot():
    chats = wpp.get_chat_names()
 
    data = {'message': chats}
+
+@app.route('/download/')
+def downloadFile ():
+    path = "archives/Zilma.csv"
+    return send_file(path, as_attachment=True)
 
 if __name__ == '__main__':
    app.run(debug=True)

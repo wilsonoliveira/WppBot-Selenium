@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -10,9 +11,10 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from datetime import datetime
+
 from wpp_message import message
 import time
-from urllib import request
+import csv
 
 class WppApi:
     firefox_capabilities = DesiredCapabilities.FIREFOX
@@ -24,13 +26,17 @@ class WppApi:
     def __init__(self, wait):
         self.browser.get("https://web.whatsapp.com/")
         WebDriverWait(self.browser, wait).until(EC.presence_of_element_located(
-            (By.CSS_SELECTOR, '._2zCfw')))
+            (By.CSS_SELECTOR, '._2zCfw')))         
+        
 
     # seleciona um chat
     def get_chat(self, chat_name):
+        time.sleep(3)
         search = self.browser.find_element_by_css_selector("._2zCfw")
         search.send_keys(chat_name+Keys.ENTER)
-        time.sleep(5)
+        WebDriverWait(self.browser, 10).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, '.message-in')))
+        
 
     def join_group(self, invite_link):
         self.browser.get(invite_link)
@@ -117,10 +123,10 @@ class WppApi:
         for div in divs:
 
             if self.check_exists_by_tag(div, 'img'):
-                print('achou img')
+                # print('achou img')
                 img = div.find_element_by_tag_name('img')
-                src = img.get_attribute('src')
-                print(src)
+                src = img.get_attribute('src')                
+                # print(src)
                 # self.get_and_save_image(src, chat_name)
 
             if self.check_exists_by_class(div, 'copyable-text'):
@@ -130,10 +136,25 @@ class WppApi:
                 infoMsg = infoMsg.replace(',', '')
                 infoMsg = infoMsg.replace(']', '')
                 vtMsg = infoMsg.split()
-                msg = message(vtMsg[1], vtMsg[0], vtMsg[2], info.text)
+                msg = message(info.location, vtMsg[1], vtMsg[0], vtMsg[2], info.text)
                 messages.append(msg)
                 # print(msg.text)
         return messages
+
+    def have_new_mesages(self, chat_name):
+        # search = self.browser.find_element_by_css_selector("._2zCfw")
+        # search.send_keys(chat_name)
+        # self.browser.execute_script("document.getElementsByClassName('_2zCfw').value = '"+chat_name+"';")
+        # chat = self.browser.find_element_by_css_selector('.X7YrQ')
+        chats = self.chat_with_unseen_messages()
+        have = False
+        if chat_name in chats:
+            have = True
+        
+        # self.browser.execute_script("document.getElementsByClassName('_2zCfw').value = '';")
+        # self.browser.find_element_by_css_selector('._2heX1').click()
+        return have
+
 
     def chat_with_unseen_messages(self):
         WebDriverWait(self.browser, self.timeout).until(EC.presence_of_element_located(
@@ -156,13 +177,14 @@ class WppApi:
             self.browser.execute_script('arguments[0].scrollTop += arguments[0].scrollHeight/10', div_side)
             ini = self.browser.execute_script('return arguments[0].scrollTop', div_side)
             time.sleep(1)
+        self.browser.execute_script('arguments[0].scrollTop = 0', div_side)
         return chat_names
 
     def get_chat_names(self):
         WebDriverWait(self.browser, self.timeout).until(EC.presence_of_element_located(
             (By.CSS_SELECTOR, '._2zCfw')))
         time.sleep(5)
-
+        self.browser.minimize_window()
         chat_names= []
         div_side = self.browser.find_element_by_id('pane-side')
         size = self.browser.execute_script('return arguments[0].scrollHeight', div_side)
@@ -176,6 +198,59 @@ class WppApi:
                     chat_names.append(chat_name)
             self.browser.execute_script('arguments[0].scrollTop += arguments[0].scrollHeight/10', div_side)
             ini = self.browser.execute_script('return arguments[0].scrollTop', div_side)
-        self.browser.minimize_window()
+        
         return chat_names
-            
+
+    def watch_groups(self, groups, datetime):
+        last_messages = {}
+        groups_messages = {}
+        for group in groups:
+                messages = self.get_messages_chat(group, 20)
+                groups_messages[group] = messages
+                last_messages[group]= messages[-1]
+                
+        i=0
+        while i < 1:
+            for group in groups:
+                messages = self.get_messages_chat(group, 20)
+                for message in messages:
+                    if message.compare_time(last_messages[group].date_time) == 1:
+                        last_messages[group] = message
+                        groups_messages[group].append(message)
+                    elif message.compare_time(last_messages[group].date_time) == 0:
+                        if message.location['y'] > last_messages[group].location['y']:
+                            last_messages[group] = message
+                            groups_messages[group].append(message)
+            i+=1
+        for group in groups:
+            self.write_file(group, groups_messages[group])
+
+
+    def write_file(self, title, messages):
+        titlefile = "archives/"+title+".csv"
+        with open(titlefile, 'a') as file:
+            writer = csv.writer(file, delimiter=',',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            for message in messages:
+                writer.writerow([message.location, message.date_time, message.author.encode('utf-8'), message.text.encode('utf-8')])
+
+    
+    def read_from_file(self, title):
+        try:
+            titlefile = "archives/"+title+".csv"
+            archive = open(titlefile, 'r')
+            messages = archive.readlines()
+            last_line = messages[len(messages)-1].split(",")            
+            print(last_line[0])
+            print(last_line[1])
+            y = last_line[0].split(":")
+            last_line[1]= last_line[1].replace("|", "")
+            last_line[1] = last_line[1].replace("{", "")
+            last_line[1] = last_line[1].replace("}", "")
+            x = last_line[1].split(":")            
+            location = {'y' : float(y[1]), 'x' : float(x[1])}
+            last_message = message.set_message(location, last_line[2], last_line[3], last_line[4])
+            return [last_mesage]
+        except IOError as e:
+            return []
+
